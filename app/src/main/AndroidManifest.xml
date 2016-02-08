@@ -11,7 +11,9 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".activities.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,8 +29,19 @@
             android:name=".activities.MovieDetailActivity"
             android:label="@string/title_activity_movie_detail"
             android:parentActivityName=".activities.MainActivity" >
+        </activity>
+        <activity
+            android:name=".activities.ReviewsActivity"
+            android:label="@string/title_activity_reviews"
+            android:parentActivityName=".activities.MovieDetailActivity"
+              >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MovieDetailActivity"/>
+
 
         </activity>
+
     </application>
 
 </manifest>

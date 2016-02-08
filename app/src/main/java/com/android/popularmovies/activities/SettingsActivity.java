@@ -1,5 +1,7 @@
 package com.android.popularmovies.activities;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -37,7 +39,7 @@ public class SettingsActivity extends PreferenceActivity
         onPreferenceChange(preference,
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), getString(R.string.pref_sort_by_default) ));
+                        .getString(preference.getKey(), getString(R.string.pref_sort_by_default)));
     }
 
     @Override
@@ -57,6 +59,11 @@ public class SettingsActivity extends PreferenceActivity
             preference.setSummary(stringValue);
         }
         return true;
+    }
+
+    private static boolean isXLargeTablet(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
 }

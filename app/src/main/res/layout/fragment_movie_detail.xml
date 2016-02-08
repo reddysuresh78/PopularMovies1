@@ -8,6 +8,32 @@
     android:fillViewport="true"
     >
 
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+    <TextView
+        android:id="@+id/text_view_msg"
+        android:text="@string/msg"
+        android:textColor="@color/orange800"
+        android:textSize="48sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="invisible"/>
+
+    <Button
+        android:id="@+id/play_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:drawableBottom="@mipmap/android_play"
+        android:layout_marginTop="80dp"
+        android:background="@android:color/transparent"
+        />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -68,6 +94,15 @@
                     android:textSize="16sp"
                     android:textColor="@color/darkred800"/>
 
+                <Button
+                    android:id="@+id/mark_as_favorite_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/mark_as_favorite"
+                    android:background="@color/lightBlue400"/>
+
+
             </LinearLayout>
 
         </LinearLayout>
@@ -87,8 +122,19 @@
                 android:textSize="14sp"
                 />
 
+            <Button
+                android:id="@+id/reviews_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="16dp"
+                android:text="@string/reviews"
+                android:background="@color/lightBlue400"/>
+
+
 
         </LinearLayout>
 
     </LinearLayout>
+
+    </RelativeLayout>
 </ScrollView>

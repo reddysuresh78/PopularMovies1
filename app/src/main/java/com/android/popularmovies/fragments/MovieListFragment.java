@@ -3,6 +3,8 @@ package com.android.popularmovies.fragments;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,12 +16,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.android.popularmovies.BuildConfig;
-import com.android.popularmovies.adapter.ImageAdapter;
-import com.android.popularmovies.model.Movie;
 import com.android.popularmovies.R;
 import com.android.popularmovies.activities.MovieDetailActivity;
+import com.android.popularmovies.adapter.ImageAdapter;
+import com.android.popularmovies.dbhelper.MoviesDBHelper;
+import com.android.popularmovies.dbhelper.PopularMovieContractor;
+import com.android.popularmovies.model.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +45,11 @@ import java.util.List;
  */
 public class MovieListFragment extends Fragment {
 
+    final static private String TAG = MovieListFragment.class.getName();
+
     private ImageAdapter mMoviesAdapter;
+
+    private MovieDetailFragment movieDetailFragment;
 
     public MovieListFragment() {
     }
@@ -65,19 +74,30 @@ public class MovieListFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_movie_list, container, false);
 
-        // Get a reference to the ListView, and attach this adapter to it.
-        GridView listView = (GridView) rootView.findViewById(R.id.gridview_movies);
-        listView.setAdapter(mMoviesAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        movieDetailFragment = (MovieDetailFragment) getFragmentManager().findFragmentByTag("DETAILTAG");
 
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Movie forecast = mMoviesAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
-                        .putExtra("Movie", forecast);
-                startActivity(intent);
-            }
-        });
+        // Get a reference to the ListView, and attach this adapter to it.
+        GridView gridView = (GridView) rootView.findViewById(R.id.gridview_movies);
+        gridView.setAdapter(mMoviesAdapter);
+        gridView.setOnItemClickListener(
+
+
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        movieDetailFragment = (MovieDetailFragment) getFragmentManager().findFragmentByTag("DETAILTAG");
+                        if (movieDetailFragment == null) {
+                            Movie item = mMoviesAdapter.getItem(position);
+                            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                            intent.putExtra("Movie", item);
+                            startActivity(intent);
+                        } else {
+                            Log.e(TAG, "Movi detail fragment already present");
+                            movieDetailFragment.update(mMoviesAdapter.getItem(position));
+                        }
+
+                    }
+                });
 
         return rootView;
     }
@@ -85,10 +105,41 @@ public class MovieListFragment extends Fragment {
     private void updateMovieList() {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sortBy = prefs.getString("sort_by",getString(R.string.pref_sort_by_default));
+        String result = prefs.getString("sort_by",getString(R.string.pref_sort_by_default));
 
-        new FetchMoviesTask().execute(sortBy);
+
+        if(result.equalsIgnoreCase(getString(R.string.by_favorites))){
+            new FetchMoviesFromDB().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getCursor());
+        }else {
+            new FetchMoviesTask().execute(result);
+        }
      }
+
+    private Cursor getCursor() {
+        MoviesDBHelper helper = new MoviesDBHelper(getActivity());
+        SQLiteDatabase db = helper.getReadableDatabase();
+
+        String[] projection = {
+                PopularMovieContractor.MovieEntry._ID,
+                PopularMovieContractor.MovieEntry.MOVIE_ID,
+                PopularMovieContractor.MovieEntry.TITLE,
+                PopularMovieContractor.MovieEntry.DESCRIPTION,
+                PopularMovieContractor.MovieEntry.POSTER_LINK,
+                PopularMovieContractor.MovieEntry.BACKGROUND_LINK,
+                PopularMovieContractor.MovieEntry.RELEASE_DATE,
+                PopularMovieContractor.MovieEntry.RATING
+        };
+
+        String order = PopularMovieContractor.MovieEntry.RATING + " DESC";
+
+        return db.query(PopularMovieContractor.MovieEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                order);
+    }
 
     @Override
     public void onStart() {
@@ -207,7 +258,7 @@ public class MovieListFragment extends Fragment {
                 return getMovieDataFromJson(moviesJsonStr);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
+
             }
 
             // This will only happen if there was an error getting or parsing the forecast.
@@ -223,7 +274,54 @@ public class MovieListFragment extends Fragment {
                     mMoviesAdapter.add(movie);
                 }
 
+                if(mMoviesAdapter.getCount() > 0 ) {
+                    if(movieDetailFragment != null) {
+                        movieDetailFragment.update(mMoviesAdapter.getItem(0));
+                    }
+
+                }
+
+            }else{
+                Toast.makeText(getActivity(),  "There was some error retrieving movies information",Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private class FetchMoviesFromDB extends AsyncTask<Cursor, Integer, ArrayList<Movie>> {
+
+        @Override
+        protected ArrayList<Movie> doInBackground(Cursor... params) {
+            Cursor cursor = params[0];
+            if(cursor.moveToFirst()) {
+                cursor.moveToLast();
+            }
+            ArrayList<Movie> items = new ArrayList<>(cursor.getCount());
+            if(cursor.moveToFirst()) {
+                do {
+                    items.add(new Movie(cursor));
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            return items;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Movie> movieItems) {
+            super.onPostExecute(movieItems);
+            if (movieItems == null) {
+                Log.e(TAG, "onPostExecute: NULL");
+                return;
+            }
+
+            mMoviesAdapter.clear();
+            mMoviesAdapter.addAll(movieItems);
+
+            if(mMoviesAdapter.getCount() > 0 ) {
+                if(movieDetailFragment != null) {
+                    movieDetailFragment.update(mMoviesAdapter.getItem(0));
+                }
+            }
+        }
+
     }
 }

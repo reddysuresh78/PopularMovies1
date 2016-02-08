@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="darkred800">#880E4F</color>
+    <color name="lightBlue300">#4FC3F7</color>
+    <color name="orange800">#EF6C00</color>
+    <color name="lightBlue400">#29B6F6</color>
 
 </resources>

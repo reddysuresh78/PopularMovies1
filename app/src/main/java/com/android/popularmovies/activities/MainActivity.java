@@ -7,7 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.android.popularmovies.R;
-import com.android.popularmovies.fragments.MovieListFragment;
+import com.android.popularmovies.fragments.MovieDetailFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,11 +16,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new MovieListFragment())
-                    .commit();
+
+        if (findViewById(R.id.details_fragment_container) != null) {
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.details_fragment_container, new MovieDetailFragment(), "DETAILTAG")
+                        .commit();
+            }
         }
+
+
     }
 
     @Override

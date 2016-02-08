@@ -29,9 +29,21 @@
 
     <string name="title_activity_movie_detail">Movie Details</string>
 
+    <string name="reviews">Reviews</string>
+
     <string name="wallpaper">Wallpaper</string>
 
     <string name="poster_image_desc">Poster</string>
+    <string name="title_activity_reviews">ReviewsActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+
+
+    <string name="msg">Nothing is selected</string>
+
+    <string name="by_favorites">Favorites</string>
+    <string name="mark_as_favorite">Mark As Favorite</string>
+    <string name="reviews_for">Reviews for</string>
 
 
 </resources>

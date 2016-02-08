@@ -8,20 +8,85 @@ import android.view.MenuItem;
 
 import com.android.popularmovies.R;
 import com.android.popularmovies.fragments.MovieDetailFragment;
+import com.android.popularmovies.model.Movie;
 
 public class MovieDetailActivity extends AppCompatActivity {
+
+    private Movie mMovie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+
         if (savedInstanceState == null) {
+            // Create the detail fragment and add it to the activity
+            // using a fragment transaction.
+
+            Bundle arguments = new Bundle();
+            arguments.putParcelable("Movie", getIntent().getData());
+
+            MovieDetailFragment fragment = new MovieDetailFragment();
+            fragment.setArguments(arguments);
+
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new MovieDetailFragment())
+                    .add(R.id.container, fragment)
                     .commit();
         }
+
+
+
+//        Bundle bundle = getIntent().getExtras();
+//
+//        if(bundle!= null) {
+//
+//            mMovie = bundle.getParcelable("Movie");
+//        }
+//
+//        if(savedInstanceState !=null){
+//            mMovie  = savedInstanceState.getParcelable("Movie");
+//
+//        }
+
+//        if (savedInstanceState != null || bundle != null) {
+//
+//        }else {
+////            if (savedInstanceState == null) {
+//                getSupportFragmentManager().beginTransaction()
+//                        .add(R.id.container, new MovieDetailFragment())
+//                        .commit();
+////            }
+
+//        if(savedInstanceState == null && bundle == null) {
+//            getSupportFragmentManager()
+//                    .beginTransaction()
+//                    .add(R.id.container, mContent)
+//                    .commit();
+//        }else {
+
+//            if (savedInstanceState == null) {
+//                MovieDetailFragment df = (MovieDetailFragment) getSupportFragmentManager().findFragmentByTag("DETAILTAG");
+//                if (df == null) {
+//
+//                    getSupportFragmentManager()
+//                            .beginTransaction()
+//                            .add(R.id.container, MovieDetailFragment.newInstance(mMovie))
+//                            .commit();
+//                }
+//
+//            }
+//        }
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//
+//        if (mMovie  != null)
+//            outState.putParcelable("Movie", mMovie );
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -46,4 +111,9 @@ public class MovieDetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
 }

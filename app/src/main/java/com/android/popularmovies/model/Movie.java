@@ -1,7 +1,10 @@
 package com.android.popularmovies.model;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.android.popularmovies.dbhelper.PopularMovieContractor;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +31,17 @@ public class Movie implements Parcelable {
         this.releaseDate = json.getString("release_date");
         this.rating = json.getDouble("vote_average");
     }
+
+    public Movie(Cursor cursor) {
+        this.ID = cursor.getInt(cursor.getColumnIndexOrThrow(PopularMovieContractor.MovieEntry.MOVIE_ID));
+        this.title = cursor.getString(cursor.getColumnIndexOrThrow(PopularMovieContractor.MovieEntry.TITLE));
+        this.description = cursor.getString(cursor.getColumnIndexOrThrow(PopularMovieContractor.MovieEntry.DESCRIPTION));
+        this.posterPath = cursor.getString(cursor.getColumnIndexOrThrow(PopularMovieContractor.MovieEntry.POSTER_LINK));
+        this.backdrop = cursor.getString(cursor.getColumnIndexOrThrow(PopularMovieContractor.MovieEntry.BACKGROUND_LINK));
+        this.releaseDate = cursor.getString(cursor.getColumnIndexOrThrow(PopularMovieContractor.MovieEntry.RELEASE_DATE));
+        this.rating = cursor.getDouble(cursor.getColumnIndexOrThrow(PopularMovieContractor.MovieEntry.RATING));
+    }
+
 
     public int getID() {
         return ID;
